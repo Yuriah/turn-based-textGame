@@ -1,0 +1,201 @@
+body {
+  display: flex;
+  justify-content: center;
+}
+
+/* main div, */
+#main {
+  width: 600px;
+  height: 500px;
+  background-color: white;
+  
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* top stuff (player, enemy and console) */
+#top {
+  background-color: grey;
+  flex: 3.5 0 0;
+  
+  display: flex;
+  flex-direction: row;
+}
+
+#player, #enemy {
+  flex: 1 0 0;
+  background-color: lightblue;
+}
+
+#console {
+  flex: 2 0 0;
+  background-color: grey;
+  
+}
+
+#inventory, #credits {
+  flex: 1 0 0;
+  
+}
+
+#battle {
+  flex: 2 0 0;
+  background-color: white;
+}
+
+
+
+
+#player, #enemy {
+  display: flex;
+  flex-direction: column;
+}
+
+#pTitle, #eTitle {
+  flex: 1 0 0;
+  background-color: #92a8d1;
+  
+  font-size: 1.5em;
+  text-align: center;
+  border-bottom: 2px solid black;
+  font-weight: bold;
+}
+
+#playerStats, #enemyStats {
+  display: flex;
+  flex-direction: column;
+}
+
+#playerStats, #enemyStats {
+  flex: 7 0 0;
+  background-color: lightgreen;
+}
+
+.statsTitle {
+  flex: 1 0 0;
+  background-color: #92a8d1;
+  
+  font-size: 2em;
+  text-align: center;
+}
+
+#pStats, #eStats {
+  flex: 7 0 0;
+  background-color: #92a8d1;
+  
+  font-size: 1.3em;
+}
+
+
+
+#console {
+  display: flex;
+  flex-direction: column;
+}
+
+#consoleTitle {
+  background-color: #034f84;
+  flex: 1 0 0;
+  
+  margin: 0;
+  text-align: center;
+  border-bottom: 2px solid black;
+}
+
+#battleHistory {
+  flex: 7 0 0;
+  background-color: #034f84;
+  
+  line-height: 40%;
+  overflow: auto;
+}
+
+
+
+/* bot stuff (Buttons and actions) */
+#bot {
+  flex: 1 0 0;
+  
+  display: flex;
+  flex-direction: row;
+}
+
+#inventory, #credits {
+  display: flex;
+  flex-direction: column;
+}
+
+#battle {
+  display: flex;
+  flex-direction: column;
+}
+
+#battleActions {
+  flex: 1 0 0;
+  
+  display: flex;
+  flex-direction: row;
+}
+
+#otherActions {
+  flex: 1 0 0;
+  
+  display: flex;
+  flex-direction: row;
+}
+
+.aButton {
+  padding: 0;
+}
+
+.oButton {
+  padding: 0;
+  margin: 0;
+}
+
+button {
+  flex: 1 0 0;
+  text-decoration: none;
+  color: black;
+  border-radius: 5px;
+}
+
+button, #closeModal {
+  transition-duration: 0.2s;
+}
+
+button:hover, #closeModal:hover {
+  background-color: #f7786b;
+  color: black;
+  cursor: pointer;
+}
+
+button:active, #closeModal:active{
+  color: white;
+  background-color: #c94c4c;
+  transition-duration: 0.05s;
+}
+
+
+
+
+#modalContainer {
+  display: flex;
+  display: none;
+  flex-direction: column;
+  transform: translate(-50%, -50%);
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  overflow: auto;
+  padding: 0;
+  z-index: 1;
+  background-color: white;
+}
+
+#modalContent {
+  margin: 5px 10px;
+  padding: 0 5px;
+  font-size: 1.5em;
+}
