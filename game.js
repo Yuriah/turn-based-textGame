@@ -6,192 +6,228 @@ let Game = {
 }
 
 
-
 // --------------------
 // PLAYER CONSTRUCTOR
 // --------------------
 function Player(health, damage, defense, hitChance, luck, name) {
-  this.fightValue = {
+  this.name = name;
+  this.level = 1;
+  this.exp = 0;
+  this.nextExp = 100;
+  this.type = "player"
+  
+  this.battleValue = {
     health,
     damage,
     defense,
     hitChance,
     luck
   }
-  this.general = {
-    name,
-    level: 1,
-    exp: 0,
-    nextExp: 100,
-    type: "player"
-  }
 }
 
 
-
-// --------------------
+// ----------------
 // PLAYER METHODS
-// --------------------
-Player.prototype.attack = function() {
-  
+// ----------------
+Player.prototype.defend = function() {
   return {
-    damageVal: this.fightValue.damage - Game.battle.helperFn.scatterNum(this.fightValue.damage),
-    attackMsg: Game.battle.function.generateAttackMsg(this.general.name)
+    command: "attack",
+    damageValue: this.battleValue.damage - Game.Math.scatterNumber(this.battleValue.damage)  // wird noch gemacht - ERLEDIGT
   }
 }
 
-Player.prototype.defend = function() {
-  let val = this.fightValue.defense - Game.battle.helperFn.scatterNum(this.fightValue.defense);
-  
+Player.prototype.defend = function() { 
   return {
-    defendedVal: val,
-    defenseMsg: Game.battle.function.generateDefendMsg(val)
+    command: "defend",
+    defendValue: this.battleValue.defense - Game.Math.scatterNumber(this.battleValue.defense)  // wird noch gemacht - ERLEDIGT
   }
 }
 
 Player.prototype.addExp = function(gain) {
-  this.general.exp += gain;
+  this.exp += gain;
 }
 
 Player.prototype.levelUp = function() {
-  this.fightValue.health += 20;
-  this.fightValue.damage += 10;
-  this.fightValue.defense += 5;
-  this.fightValue.hitChance += 10;
-  this.fightValue.luck += 5;
-  this.general.level += 1;
+  this.battleValue.health += 20;
+  this.battleValue.damage += 10;
+  this.battleValue.defense += 5;
+  this.battleValue.hitChance += 10;
+  this.battleValue.luck += 5;
+  this.level += 1;
 }
 
 Player.prototype.setExpForLevelUp = function() {
-  this.general.nextExp *= 1.5;
-  this.general.exp = 0;
+  this.nextExp *= 1.5;
+  this.exp = 0;
 }
 
 Player.prototype.checkForLevelUp = function() {
-  let value = (this.general.exp >= this.general.nextExp) ? true : false;
-  return value;
+  return (this.exp >= this.nextExp) ? true : false;
 }
 
 
-
-// ------------------------
+// -------------------
 // ENEMY CONSTRUCTOR
-// ------------------------
+// -------------------
 function Enemy(health, damage, defense, hitChance, luck, name, level, givingExp) {
-  this.fightValue = {
+  this.name = name;
+  this.level = level;
+  this.givingExp = givingExp;
+  this.type = "enemy";
+  
+  this.battleValue = {
     health,
     damage,
     defense,
     hitChance,
     luck
   }
-  this.general = {
-    name,
-    level,
-    givingExp,
-    type: "enemy"
-  }
 }
 
 
-
-// ------------------------
+// ---------------
 // ENEMY METHODS
-// ------------------------
+// ---------------
 Enemy.prototype.attack = function() {
-  
   return {
-    damageVal: this.fightValue.damage - Game.battle.helperFn.scatterNum(this.fightValue.damage),
-    attackMsg: Game.battle.function.generateAttackMsg(this.general.name)
+    command: "attack",
+    damageValue: this.battleValue.damage - Game.Math.scatterNumber(this.battleValue.damage)  // wird noch gemacht - ERLEDIGT
   }
 }
 
 Enemy.prototype.defend = function() {
-  let val = this.fightValue.defense - Game.battle.helperFn.scatterNum(this.fightValue.defense);
-  
   return {
-    defendedVal: val,
-    defenseMsg: Game.battle.function.generateDefendMsg(val)
+    command: "defend",
+    defendValue: this.battleValue.defense - Game.Math.scatterNumber(this.battleValue.defense)  // wird noch gemacht - ERLEDIGT
   }
 }
 
 
+// -----------
+// GAME.MATH 
+// -----------
+Game.Math = {
+  
+  scatterNumber: function(damage) {
+    return Math.floor(Math.random() * damage) + 1;
+  },
+  
+  randomNumberUntil: function(maxNumber) {
+    return Math.floor(Math.random() * maxNumber);
+  },
+  
+}
 
-// ---------------------------
+
+// ---------------
+// GAME.MESSAGES
+// ---------------
+Game.Message = {
+  attackMessage: function(source) {
+    let randomNum = Game.Math.randomNumberUntil(5);
+    let attackMessage = [`${source} takes a swing for an attack!`,
+                         `${source} takes his chance for an attack!`,
+                         `${source} leads towards to strike!`,
+                         `${source} is striking hard!`,
+                         `${source} reaches back for a strike!`
+                        ];
+    
+    return attackMessage[randomNum];
+  },
+  
+  dealtDamageMessage: function(source, target, damage) {
+    return `${source} dealt ${dmg} to ${target}`;
+  },
+  
+  defendMessage: function() {
+    return `${source} blocked off ${dmg} damage!`;
+  },
+  
+}
+
+
+// ----------
+// GAME.DOM
+// ----------
+Game.DOM = {
+  property: {
+    boxState: false
+  },
+  
+  function: {
+    updateBox: function(boxContent) {
+      $("modalContent").innerHTML = boxContent;
+    },
+    
+    drawBox: function() {
+      $("modalContainer").style.display = "inherit";
+    },
+    
+    closeBox: function() {
+      let modal = $("modalContainer");
+      
+      if (Game.DOM.property.boxState === true) {
+        Game.DOM.property.boxState = false;
+        modal.style.display = "none";
+      } else {
+        Game.DOM.property.boxState = true;  // bisschen komisch
+      }
+    },
+    
+    drawStats: function(target, health, dmg, defense, hitChance, luck, name) {
+      let stats = ["Health", "Damage", "Defense", "HitChance", "Luck", "Title"];
+      let length = arguments.length - 1;
+      
+      for (let i = 0; i < length; i++) {
+        $(`${target}${stats[i]}`).innerHTML = arguments[i + 1];
+      }
+    }
+  }
+}
+
+
+// --------------------------
 // PLAYER AND ENEMY OBJECTS
-// ---------------------------
-                 // health, dmg, defense, hitChance, luck, name
+// --------------------------
+                      // health, dmg, defense, hitChance, luck, name
 let player = new Player(100, 50, 50, 50, 50, "BrotherInArms");
 
-                  // health, dmg, defense, hitChance, luck, name, lvl, exp
-let enemies = {
+                // health, dmg, defense, hitChance, luck, name, lvl, exp
+let Enemies = {
   wolf: new Enemy(100, 100, 100, 100, 100, "wolf", 1, 20),
   werewolf: new Enemy(150, 100, 200, 200, 200, "werewolf", 2, 50),
   uberwolf: new Enemy(200, 200, 200, 200, 200, "uberwolf", 3, 100)
 }
 
 
-
-// ---------------------------
-// GENERAL HELPER FUNCTIONS
-// ---------------------------
+// ------------------
+// HELPER FUNCTIONS
+// ------------------
 function $(id) {
   return document.getElementById(id);
 }
 
 
-
-// ------------
-// GAME LOOP
-// ------------
-let gameloop = {
-  battle: {
-    initBattle: function(event) {
-      if (gameloop.property.enemyFound === true) {
-        console.log("Battle is starting!");
-        gameloop.property.battleState = true;
-        gameloop.helperFn.disableNonActionButtons();
-      } else {
-        console.log("No enemy is there to fight against");
-      }
-    },
-    
-    newRound: function(event) {
-      if (gameloop.property.battleState === true) {
-        console.log("New Round!")
-        gameloop.property.playerCommand = event.target.id;
-        
-        gameloop.battle.whileRound();
-        
-      } else {
-        console.log("No battle is occuring to fight on")
-      }
-    },
-    
-    whileRound: function() {
-//      getInputP(gameloop.property.playerCommand);
-//      getInputAI();
-      decideWhosFirst();
-      executeRound();
-    },
-    
-    battleNotFinished: function() {
-      
-    },
-    
-    battleFinished: function() {
-      player.checkForLevelUp();
-    }
-  }
+// -------------
+// GAME.BATTLE
+// -------------
+Game.Battle = {
+  
 }
 
 
-gameloop.property = {
-  newRound: true,
+// ------------------------
+// GAME.BATTLE PROPERTIES
+// ------------------------
+Game.Battle.property = {
+  
+
+  newRound: false,
   battleState: false,
   enemyFound: false,
-  interval: "empty",
-  playerCommand: "",
+  playerCommand: undefined,  // HINT: Muss ich noch anschauen
+  currentEnemy: undefined,
+  currentPlayer: undefined,  // Könnte komisch sein
   
   nonActionButton: {
     startBattle: true,
@@ -204,182 +240,133 @@ gameloop.property = {
   }
 }
 
-gameloop.helperFn = {
-  disableNonActionButtons: function() {
-    gameloop.property.nonActionButton.startBattle = false;
-    gameloop.property.nonActionButton.lookForEnemy = false;
-    gameloop.property.nonActionButton.showEnemies = false;
-    gameloop.property.nonActionButton.dummy = false;
-    gameloop.property.nonActionButton.credits = false;
-    gameloop.property.nonActionButton.author = false;
-    gameloop.property.nonActionButton.shop = false;
-  },
-  resetActionValues: function() {
-    
-  }
-}
 
-
-// ------------------------
-// GAME LOOP - FUNCTIONS
-// ------------------------
-
-function getInputP(command) {
-  if (command === "AttackB") {
-    console.log("Player attacks");
-    
-    return {
-      p: player.attack()
-    }
-  } else if (command === "DefendB") {
-    console.log("Player defends");
-    
-    return {
-      p: player.defend()
-    }
-  }
-}
-
-
-
-function getInputAI() {
+// -----------------------
+// GAME.BATTLE FUNCTIONS
+// -----------------------
+Game.Battle.function = {
   
-}
 
-function decideWhosFirst() {
-  
-}
-
-function executeRound(command) {
-  let inputP = getInputP(gameloop.property.playerCommand);
-  console.log(inputP);
-}
-
-
-
-// ----------------------------------------
-// BATTLE PROPERTIES AND FUNCTIONS
-// ----------------------------------------
-Game.battle = {
-  property: {
-    
+  disableNonBattleButtons: function() {
+    Game.Battle.property.nonActionButton.startBattle = false;
+    Game.Battle.property.nonActionButton.lookForEnemy = false;
+    Game.Battle.property.nonActionButton.showEnemies = false;
+    Game.Battle.property.nonActionButton.dummy = false;
+    Game.Battle.property.nonActionButton.credits = false;
+    Game.Battle.property.nonActionButton.author = false;
+    Game.Battle.property.nonActionButton.shop = false;
   },
   
+  setGameBattleProperties: function() {
+    Game.Battle.property.battleState = true;
+    Game.Battle.property.newRound = true;
+    Game.Battle.property.currentPlayer = player;  // wird noch angeschaut
+  },
   
-  function: {
-    generateAttackMsg: function() {
-      let randomNum = Math.floor(Math.random() * 5) + 1;
-      let arrMsg = ["You take a swing for an attack!",
-                    "You take your chance to attack!",
-                    "You lead your strike towards your foe!",
-                    "You are striking hard!",
-                    "You reach back for a strike!"
-                   ]
-      let msg = arrMsg[randomNum];              
-    },
+  resetBattleProperties: function() {
+    Game.Battle.property.battleState = false;
+    Game.Battle.property.newRound = false;
+    Game.Battle.property.enemyFound = false;
+    Game.Battle.property.currentEnemy = undefined;
+    Game.Battle.property.currentPlayer = undefined;
+    Game.Battle.property.playerCommand = undefined;
     
-    playerDealsDmgMsg: function(target, dmg) {
-      return `You dealt ${dmg} to ${target}`;
-    },
+    Game.Battle.property.nonActionButton.startBattle = true;
+    Game.Battle.property.nonActionButton.lookForEnemy = true;
+    Game.Battle.property.nonActionButton.showEnemies = true;
+    Game.Battle.property.nonActionButton.dummy = true;
+    Game.Battle.property.nonActionButton.credits = true;
+    Game.Battle.property.nonActionButton.author = true;
+    Game.Battle.property.nonActionButton.shop = true;
+  },
+  
+  pickEnemy: function() {
+    let totalEnemies = Object.keys(Enemies).length;
+    let randomNum = Game.Math.randomNumberUntil(totalEnemies)
+    return Object.keys(Enemies)[randomNum];
+  },
+  
+  lookForEnemy: function() {
+    let enemy = Game.Battle.function.pickEnemy();
     
-    generateDefendMsg: function(dmg) {
-      return `You blocked off ${dmg} damage!`;
-    },
-    
-    pickEnemy: function() {
-      let len = Object.keys(enemies).length;
-      let randomNum = Math.floor(Math.random() * len);
-      return Object.keys(enemies)[randomNum];
-    },
-    
-    lookForEnemy: function() {
-      let e = Game.battle.function.pickEnemy();
+    if (Game.Battle.property.enemyFound === false) {
+      Game.Battle.property.currentEnemy = Enemies[enemy];
+      Game.Battle.property.enemyFound = true;
+      Game.Battle.property.boxState = true;  // Ist im DOM, kommt noch - ERLEDIGT
       
-      gameloop.property.enemyFound = true;
-      Game.DOM.property.boxState = false;
-
-      Game.DOM.function.piece.drawStats("e",
-      enemies[e].fightValue.health,
-      enemies[e].fightValue.damage,
-      enemies[e].fightValue.defense,
-      enemies[e].fightValue.hitChance,
-      enemies[e].fightValue.luck,
-      enemies[e].general.name
-      )
-      Game.DOM.function.full.displayBox("Looking for a enemy...");
-    }
-  },
-  
-  
-  helperFn: {
-    scatterNum: function(dmg) {
-      return Math.floor(Math.random() * dmg) + 1;
+      Game.DOM.function.drawStats("e",
+                                  Enemies[enemy].battleValue.health,
+                                  Enemies[enemy].battleValue.damage,
+                                  Enemies[enemy].battleValue.defense,
+                                  Enemies[enemy].battleValue.hitChance,
+                                  Enemies[enemy].battleValue.luck,
+                                  Enemies[enemy].name
+                                 );
+      Game.DOM.function.updateBox("Looking for enemy");
+      Game.DOM.function.drawBox();
     }
   }
 }
 
 
-
-// -------------------------------
-// DOM PROPERTIES AND FUNCTIONS
-// -------------------------------
-Game.DOM = {
-  property: {
-    boxState: false
-  },
+// -----------
+// GAME.LOOP
+// -----------
+Game.Loop = {
   
-  
-  function: {
-    full: {
-      displayBox: function(boxContent) {
-        Game.DOM.function.piece.updateBox(boxContent);
-        Game.DOM.function.piece.drawBox();
+  initBattle: function() {
+    if (Game.Battle.property.enemyFound === true && Game.Battle.property.nonActionButton.startBattle === true) {
+      console.log("Battle is starting");
+      
+      function setBattlePropertiesAndFunctions() {
+        Game.Battle.function.disableNonBattleButtons();
+        Game.Battle.function.setGameBattleProperties();
       }
-    },
+      
+      setBattlePropertiesAndFunctions();
+    }
+  },
+  
+  newRound: function(event) {
+    if (Game.Battle.property.battleState === true && Game.Battle.property.newRound === true) {
+      console.log("New Round!");
+      
+      Game.Battle.property.playerCommand = event.target.id;  // Muss noch anderster werden, gefällt mir nicht
+      
+      Game.Loop.executeRound();
+    }
+  },
+  
+  executeRound: function() {
     
+    function inputP() {
+      
+    }
     
-    piece: {
-      updateBox: function(boxContent) {
-        $("modalContent").innerHTML = boxContent;
-      },
+    function inputAI() {
       
-      drawBox: function() {
-        $("modalContainer").style.display = "inherit";
-      },
+    }
+    
+    function whosFirst() {
       
-      closeBox: function() {
-        let modal = $("modalContainer");
-
-        if (Game.DOM.property.boxState === true) {
-          Game.DOM.property.boxState = false;
-          modal.style.display = "none";
-        } else {
-          Game.DOM.property.boxState = true;
-        }
-      },
+    }
+    
+    function evaluateRound() {
       
-      drawStats: function(target, health, dmg, defense, hitChance, luck, name) {
-        let i;
-        let arrName = ["Health", "Damage", "Defense", "HitChance", "Luck", "Title"];
-        let len = arguments.length - 1;
-
-        for (i = 0; i < len; i++) {
-          $(`${target}${arrName[i]}`).innerHTML = arguments[i + 1];
-        }
-      }
     }
   }
 }
 
+console.log(Game.Battle);
 
 
 // ------------------
 // EVENT LISTENERS
 // ------------------
 window.onload = function() {
-  $("AttackB").addEventListener("click", gameloop.battle.newRound);
-  $("DefendB").addEventListener("click", gameloop.battle.newRound);
-  $("startBattleB").addEventListener("click", gameloop.battle.initBattle);
-  $("lookForBattleB").addEventListener("click", Game.battle.function.lookForEnemy);
-  $("main").addEventListener("click", Game.DOM.function.piece.closeBox);
+  $("AttackB").addEventListener("click", Game.Loop.newRound);
+  $("DefendB").addEventListener("click", Game.Loop.newRound);
+  $("startBattleB").addEventListener("click", Game.Loop.initBattle);
+  $("lookForBattleB").addEventListener("click", Game.Battle.function.lookForEnemy);
+  $("main").addEventListener("click", Game.DOM.function.closeBox);
 }
