@@ -29,7 +29,7 @@ function Player(health, damage, defense, hitChance, luck, name) {
 // ----------------
 // PLAYER METHODS
 // ----------------
-Player.prototype.defend = function() {
+Player.prototype.attack = function() {
   return {
     command: "attack",
     damageValue: this.battleValue.damage - Game.Math.scatterNumber(this.battleValue.damage)  // wird noch gemacht - ERLEDIGT
@@ -338,17 +338,18 @@ Game.Loop = {
   },
   
   executeRound: function() {
-    
+    //Possible Switch loop could go here.
     function inputP() {
-      
+      //How are you planning on getting the input ?
     }
     
     function inputAI() {
       
     }
-    
+    //Can be called such as: whosFirst().name 
     function whosFirst() {
-      
+      var rand = Game.Math.randomNumberUntil(2);
+      return rand == 1 ? {name: "player", pick: 1} : {name: "enemy", pick: 2};
     }
     
     function evaluateRound() {
